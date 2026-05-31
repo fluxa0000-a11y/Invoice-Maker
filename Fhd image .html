@@ -430,18 +430,50 @@
         });
 
         // 3. WORKABLE NATIVE DOWNLOADING ARCHITECTURE CORE
-        downloadFinalBtn.addEventListener('click', () => {
-            if (!finalProductOutput) return;
-            
-            const nativeDownloadAnchor = document.createElement('a');
-            nativeDownloadAnchor.removeAttribute('target');
-            nativeDownloadAnchor.download = `fluxaa-fhd-${Date.now()}.jpg`;
-            nativeDownloadAnchor.href = finalProductOutput;
-            
-            document.body.appendChild(nativeDownloadAnchor);
-            nativeDownloadAnchor.click();
+downloadFinalBtn.addEventListener('click', () => {
+    if (!finalProductOutput) return;
+    
+    try {
+        // 1. Base64 data ko binary bytes mein convert karna
+        const byteString = atob(finalProductOutput.split(',')[1]);
+        const mimeString = finalProductOutput.split(',')[0].split(':')[1].split(';')[0];
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        
+        for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+        }
+        
+        // 2. Real File (Blob) create karna
+        const blob = new Blob([ab], { type: mimeString });
+        const blobUrl = URL.createObjectURL(blob);
+        
+        // 3. Native Hidden Anchor method
+        const nativeDownloadAnchor = document.createElement('a');
+        nativeDownloadAnchor.download = `fluxaa-fhd-${Date.now()}.jpg`;
+        nativeDownloadAnchor.href = blobUrl;
+        
+        document.body.appendChild(nativeDownloadAnchor);
+        nativeDownloadAnchor.click();
+        
+        // Safety Clean up
+        setTimeout(() => {
             document.body.removeChild(nativeDownloadAnchor);
-        });
+            URL.revokeObjectURL(blobUrl);
+        }, 100);
+
+    } catch (error) {
+        // 4. FALLBACK: Agar mobile security download fail kare, toh safe side photo open kar do
+        console.log("Mobile redirect fallback active");
+        const newTab = window.open();
+        if (newTab) {
+            newTab.document.write(`<h3 style="color:#00d2ff; text-align:center; font-family:sans-serif; margin-top:20px;">Fluxaa HD Studio</h3><p style="color:#666; text-align:center; font-family:sans-serif;">Photo par Long Press (daba kar) rakhein aur "Save Image" select karein.</p><img src="${finalProductOutput}" style="max-width:100%; height:auto; display:block; margin:20px auto; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.3);"/>`);
+        } else {
+            // Agar pop-up bhi block ho jaye, toh direct window replace
+            window.location.href = finalProductOutput;
+        }
+    }
+});
 
         // REPLACE BUTTON ACTION ROUTE
         replaceBtn.addEventListener('click', () => {
