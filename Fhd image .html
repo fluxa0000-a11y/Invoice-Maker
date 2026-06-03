@@ -448,7 +448,7 @@
             }, 1000);
         }
 
-        // Logic core calculation for custom KB/MB sizes
+        // Logic core calculation for custom KB/MB sizes (Blob Fix Ke Sath)
         function executeCompression() {
             let canvas;
             if (cropperInstance) {
@@ -481,6 +481,20 @@
 
             compressedDataUrl = dataUrl;
             
+            // 🔥 FIX 1: BASE64 DATA KO SAFELY BLOB ME BADALNA (Isse image download fail nahi hoga)
+            try {
+                const byteString = atob(dataUrl.split(',')[1]);
+                const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0];
+                const ab = new ArrayBuffer(byteString.length);
+                const ia = new Uint8Array(ab);
+                for (let i = 0; i < byteString.length; i++) {
+                    ia[i] = byteString.charCodeAt(i);
+                }
+                finalBlobData = new Blob([ab], {type: mimeString});
+            } catch(e) {
+                console.error("Blob conversion status error:", e);
+            }
+
             // Format to show detailed specs on result screen
             const compressedBase64Length = dataUrl.length - (dataUrl.indexOf(',') + 1);
             const finalSizeKB = (compressedBase64Length * 0.75) / 1024;
@@ -491,24 +505,44 @@
             navigateTo('result-page');
         }
 
-        // Download Action Trigger for pure Image File
+        // 🔥 FIX 2: BROWSER SAFE IMAGE DOWNLOAD (Ab fail hona band)
         function downloadImage() {
-            if (!compressedDataUrl) return;
+            if (!finalBlobData) {
+                alert("No compressed data found!");
+                return;
+            }
+            // Blob URL banaya taaki koi bhi mobile/desktop browser download block na kare
+            const blobUrl = URL.createObjectURL(finalBlobData);
             const link = document.createElement('a');
             link.download = `fluxaa-compressed-${Date.now()}.jpg`;
-            link.href = compressedDataUrl;
+            link.href = blobUrl;
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(blobUrl); // Memory safe clear cleanup
         }
 
-        // Advanced PDF export logic
+        // 🔥 FIX 3: BULLETPROOF PDF GENERATION ENGINE
         function downloadPDF() {
-            if (!compressedDataUrl) return;
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF();
-            
-            // Clean standard sizing configuration matching page flow parameters
-            pdf.addImage(compressedDataUrl, 'JPEG', 10, 10, 190, 0);
-            pdf.save(`fluxaa-document-${Date.now()}.pdf`);
+            if (!compressedDataUrl) {
+                alert("No compressed image found for PDF!");
+                return;
+            }
+            try {
+                const { jsPDF } = window.jspdf;
+                const img = new Image();
+                img.src = compressedDataUrl;
+                
+                img.onload = function () {
+                    // Image ke standard resolution ke hisab se exact PDF page generate hoga (No crashing)
+                    const pdf = new jsPDF(this.width > this.height ? 'l' : 'p', 'px', [this.width, this.height]);
+                    pdf.addImage(compressedDataUrl, 'JPEG', 0, 0, this.width, this.height);
+                    pdf.save(`fluxaa-document-${Date.now()}.pdf`);
+                };
+            } catch (error) {
+                console.error("PDF Generation Error: ", error);
+                alert("PDF generation fail ho gayi. Please try again.");
+            }
         }
     </script>
 </body>
