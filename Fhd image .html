@@ -3,490 +3,513 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fluxaa - Smart Digital Tools</title>
+    <!-- AAPKA STANDARD TITLE AUR FAVICON CODE YAHAN AAYEGA -->
+    <title>Fluxaa Technologies - Premium Image Compressor</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- Cropper.js CSS (Crop Feature ke liye sabse best library) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <!-- jsPDF Library (PDF Download ke liye) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <style>
-        /* CSS RESET & THEME DESIGN */
+        :root {
+            --bg-color: #030a1c;
+            --card-bg: #0a142c;
+            --accent-color: #00d2ff;
+            --text-color: #ffffff;
+            --text-muted: #8a99ad;
+        }
+
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: #070a13;
-            color: #ffffff;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
             overflow-x: hidden;
-            position: relative;
         }
 
-        /* 1. SPLASH SCREEN (MODIFIED TEXT) */
+        /* 1. Splash Screen */
         #splash-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #070a13;
+            background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            transition: opacity 0.5s ease-out;
-            text-align: center;
-            padding: 20px;
+            transition: opacity 0.5s ease;
         }
 
-        .splash-title {
-            font-size: 2.2rem;
-            font-weight: 800;
-            background: linear-gradient(45deg, #00d2ff, #9a4eff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-
-        .splash-sub {
-            color: #707e94;
-            font-size: 0.95rem;
-            font-weight: 500;
+        .splash-logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 15px;
             letter-spacing: 2px;
         }
 
-        /* SCREEN VISIBILITY UTILITY */
-        .app-screen {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-            flex: 1;
-        }
-
-        .active-screen {
-            display: flex !important;
-        }
-
-        /* GLOBAL COMPONENTS */
-        .brand-header {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #00d2ff;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .primary-btn {
-            width: 100%;
-            background: linear-gradient(45deg, #00d2ff, #9a4eff);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(154, 78, 255, 0.3);
-            transition: 0.3s;
-            margin-top: 15px;
-        }
-
-        .primary-btn:hover {
-            transform: translateY(-2px);
-            opacity: 0.95;
-        }
-
-        .secondary-btn {
-            width: 100%;
-            background: #141b30;
-            border: 1px solid #1e2942;
-            color: #fff;
-            padding: 14px;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: 0.3s;
-        }
-
-        /* HOME SCREEN STYLE */
-        .home-card {
-            background: #0d1222;
-            border: 1px solid #1e2942;
-            border-radius: 20px;
-            padding: 25px;
-            text-align: center;
-            margin-top: 20px;
-            width: 100%;
-        }
-
-        .home-desc {
-            color: #a0aec0;
-            font-size: 1rem;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }
-
-        .badge-free {
-            display: inline-block;
-            background: rgba(0, 210, 255, 0.1);
-            color: #00d2ff;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            border: 1px solid rgba(0, 210, 255, 0.3);
-            margin-bottom: 20px;
-        }
-
-        /* BEFORE / AFTER DEMO GRAPHIC */
-        .demo-box {
-            position: relative;
-            width: 100%;
-            height: 200px;
-            background: #101626;
-            border-radius: 15px;
+        .loader-bar {
+            width: 150px;
+            height: 4px;
+            background: #152244;
+            border-radius: 2px;
             overflow: hidden;
-            border: 1px solid #1e2942;
-            margin-bottom: 20px;
-            display: flex;
         }
 
-        .demo-side {
-            flex: 1;
+        .loader-progress {
+            width: 100%;
+            height: 100%;
+            background: var(--accent-color);
+            animation: loading 3s linear forwards;
+        }
+
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(0); }
+        }
+
+        /* Common Container Design */
+        .container {
+            max-width: 600px;
+            width: 90%;
+            margin: 40px auto;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid #152244;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* 2. Home Page */
+        .home-title {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        .free-badge {
+            color: var(--accent-color);
+            font-weight: 600;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+        }
+        .btn {
+            background: linear-gradient(135deg, #00b4db, #00d2ff);
+            color: #000;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 210, 255, 0.4);
+        }
+
+        /* 3. Work Screen (Action Area) */
+        .upload-box {
+            border: 2px dashed #1e3563;
+            padding: 30px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+        .upload-box:hover {
+            border-color: var(--accent-color);
+        }
+        .crop-container {
+            max-height: 300px;
+            margin: 20px 0;
+            overflow: hidden;
+            background: #000;
+            border-radius: 8px;
+        }
+        .crop-container img {
+            max-width: 100%;
+        }
+        .size-input-group {
             display: flex;
             justify-content: center;
             align-items: center;
-            font-weight: bold;
-            font-size: 1.2rem;
-            position: relative;
+            gap: 10px;
+            margin: 20px 0;
         }
-
-        .demo-before {
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=100') center/cover;
-            filter: blur(4px) grayscale(50%);
-            color: #ff4a4a;
-        }
-
-        .demo-after {
-            background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=500') center/cover;
-            color: #00d2ff;
-            border-left: 2px solid #fff;
-        }
-
-        .demo-label {
-            position: absolute;
-            background: rgba(0,0,0,0.7);
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            bottom: 10px;
-        }
-
-        /* IMAGE UPLOAD & PREVIEW ELEMENTS */
-        .image-preview-container {
-            width: 100%;
-            background: #0d1222;
-            border: 1px solid #1e2942;
-            border-radius: 20px;
-            padding: 20px;
+        .size-input {
+            width: 100px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #1e3563;
+            background: #030a1c;
+            color: #fff;
+            font-size: 1rem;
             text-align: center;
         }
-
-        .view-frame {
-            width: 100%;
-            max-height: 300px;
-            object-fit: contain;
-            border-radius: 10px;
-            border: 1px solid #1e2942;
-            margin-top: 15px;
+        .unit-select {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #1e3563;
+            background: #030a1c;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
         }
 
-        /* GENERATING LOADING STATE */
-        .loader-spinner {
-            border: 4px solid #141b30;
-            border-top: 4px solid #9a4eff;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
+        /* 4. Wait Screen & Ad Slot */
+        .wait-text {
+            font-size: 1.3rem;
             margin-bottom: 20px;
+            color: var(--text-muted);
         }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* GLOBAL FOOTER (MODIFIED EXACT LAYOUT) */
-        footer {
+        .ad-placeholder-middle {
             width: 100%;
-            background: #070a13;
-            border-top: 1px solid #141b30;
-            padding: 30px 20px;
+            min-height: 250px;
+            background: #050f24;
+            border: 1px dashed #1e3563;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* 5. Result Screen */
+        .preview-box img {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .download-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .btn-secondary {
+            background: #152244;
+            color: #fff;
+            border: 1px solid #1e3563;
+        }
+
+        /* 6. Premium Fixed Footer Section */
+        .ad-placeholder-bottom {
+            width: 100%;
+            max-width: 728px;
+            min-height: 90px;
+            background: #050f24;
+            border: 1px dashed #1e3563;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto 10px auto;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        footer {
+            background-color: #010612;
+            padding: 25px 20px;
             text-align: center;
-            font-size: 0.95rem;
-            color: #707e94;
-            margin-top: auto;
+            border-top: 1px solid #0d1b3e;
+            width: 100%;
         }
-
-        .footer-info {
-            font-size: 1.05rem;
-            color: #a0aec0;
-            margin-bottom: 8px;
+        footer p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
         }
-
-        .footer-link-btn {
+        footer .main-link {
             color: #00d2ff;
             text-decoration: none;
-            font-weight: 600;
-            border-bottom: 1px dotted #00d2ff;
+            font-size: 1.3rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed #00d2ff;
+            padding-bottom: 2px;
         }
-
-        .footer-copyright {
-            margin-top: 15px;
+        footer .copyright {
             font-size: 0.9rem;
-            color: #515f73;
-        }
-
-        .footer-copyright strong {
-            color: #a0aec0;
+            color: #4f5e74;
         }
     </style>
 </head>
 <body>
 
+    <!-- 1. Splash Screen Section -->
     <div id="splash-screen">
-        <div class="splash-title">Image to FHD Image</div>
-        <div class="splash-sub">Powered by Fluxaa</div>
-    </div>
-
-    <div id="home-screen" class="app-screen active-screen">
-        <div class="brand-header">Fluxaa Studio</div>
-        <div class="home-card">
-            <p class="home-desc">Convert your low-resolution, blurry photos into crisp, crystal clear Ultra Full HD images instantly inside your device.</p>
-            <span class="badge-free">⚡ Unlimited Free Access</span>
-            <button class="primary-btn" onclick="navigateTo('workspace-screen')">Try Now</button>
+        <div class="splash-logo">FLUXAA</div>
+        <div class="loader-bar">
+            <div class="loader-progress"></div>
         </div>
     </div>
 
-    <div id="workspace-screen" class="app-screen">
-        <div class="brand-header">Fluxaa Studio</div>
+    <!-- MAIN CONTENT CONTAINERS -->
+    <main style="flex-grow: 1; display: flex; align-items: center;">
         
-        <div class="demo-box">
-            <div class="demo-side demo-before"><span class="demo-label" style="left:10px;">BEFORE</span></div>
-            <div class="demo-side demo-after"><span class="demo-label" style="right:10px;">AFTER (FHD)</span></div>
+        <!-- 2. Home Page Section -->
+        <div id="home-page" class="container hidden">
+            <h1 class="home-title">Smart Image Compressor</h1>
+            <p class="free-badge">🚀 Unlimited Free Time</p>
+            <button class="btn" onclick="navigateTo('work-page')">Try Now</button>
         </div>
 
-        <div class="image-preview-container">
-            <input type="file" id="photo-picker" accept="image/*" style="display: none;">
-            <button class="secondary-btn" id="select-btn">Select Photo</button>
+        <!-- 3. Work Page Section -->
+        <div id="work-page" class="container hidden">
+            <h2>Upload & Set Size</h2>
+            <p class="free-badge" style="margin-bottom:15px;">Optimize your image instantly</p>
             
-            <img id="user-photo-view" class="view-frame" style="display: none;">
-            <button class="primary-btn" id="fhd-convert-btn" style="display: none;">Change to FHD</button>
+            <div class="upload-box" onclick="document.getElementById('file-input').click()">
+                <p id="upload-status">Click to upload or drop photo here</p>
+                <input type="file" id="file-input" accept="image/*" class="hidden" onchange="handleFileSelect(event)">
+            </div>
+
+            <!-- Crop Area (Image select hote hi display hoga) -->
+            <div id="crop-wrapper" class="hidden">
+                <div class="crop-container">
+                    <img id="crop-image" src="" alt="Crop Preview">
+                </div>
+                <button class="btn btn-secondary" style="padding: 6px 15px; font-size:0.9rem; margin-bottom:15px;" onclick="applyCrop()">Set Crop Aspect</button>
+            </div>
+
+            <!-- Custom Size Engine Input -->
+            <div class="size-input-group">
+                <label>Target Size:</label>
+                <input type="number" id="target-size" class="size-input" value="50" min="1">
+                <select id="size-unit" class="unit-select">
+                    <option value="kb">KB</option>
+                    <option value="mb">MB</option>
+                </select>
+            </div>
+
+            <button class="btn" onclick="startProcessing()">Generate</button>
         </div>
+
+        <!-- 4. Wait Screen Section (With Strategic Ad Space) -->
+        <div id="wait-page" class="container hidden">
+            <div class="wait-text">Please wait... <span id="countdown">5</span>s</div>
+            
+            <!-- MIDDLE BANNER AD SLOT (High Focus Area) -->
+            <div class="ad-placeholder-middle">
+                <!-- YAHAN APNA ADSENSE COUNTER / BANNER CODE PASTE KAREIN -->
+                <div>[ Responsive Banner Ad Slot - High CTR ]</div>
+            </div>
+            
+            <p style="color: var(--text-muted); font-size:0.9rem;">Compressing your image to perfection...</p>
+        </div>
+
+        <!-- 5. Result Page Section -->
+        <div id="result-page" class="container hidden">
+            <h2>Image Ready!</h2>
+            <p class="free-badge" id="size-info" style="margin-bottom: 20px;">Original: 0KB | Compressed: 0KB</p>
+            
+            <div class="preview-box">
+                <img id="result-preview" src="" alt="Compressed Preview">
+            </div>
+
+            <div class="download-options">
+                <button class="btn btn-secondary" onclick="navigateTo('work-page')">Replace</button>
+                <button class="btn" onclick="downloadImage()">Download Image</button>
+                <button class="btn btn-secondary" onclick="downloadPDF()">Download PDF</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- BOTTOM AD SLOT & FIX FOOTER -->
+    <div>
+        <!-- FOOTER KE UPER CHOTA BANNER AD SLOT -->
+        <div class="ad-placeholder-bottom">
+            <!-- YAHAN ADSENSE KA 728x90 BANNER CODE LAGEGA -->
+            <div>[ Bottom Banner Ad Space ]</div>
+        </div>
+
+        <!-- 6. Fixed Footer Section (As per Screenshot) -->
+        <footer>
+            <p>For More Information About Fluxaa</p>
+            <a href="https://yourmainwebsite.com" class="main-link">Click Here 🚀</a>
+            <div class="copyright">© 2026 Fluxaa Technologies. All rights reserved.</div>
+        </footer>
     </div>
 
-    <div id="processing-screen" class="app-screen">
-        <div class="brand-header">Processing Pixels</div>
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; margin-top: 60px;">
-            <div class="loader-spinner"></div>
-            <h3 style="color: #9a4eff; letter-spacing: 1px;">Generating......</h3>
-            <p style="color: #515f73; font-size: 0.85rem; margin-top: 10px;">Enhancing matrix grid optimization</p>
-        </div>
-    </div>
-
-    <div id="result-screen" class="app-screen">
-        <div class="brand-header">FHD Generation Ready</div>
-        <div class="image-preview-container">
-            <img id="final-fhd-view" class="view-frame">
-            <button class="primary-btn" id="download-final-btn">Download Image</button>
-            <button class="secondary-btn" id="replace-btn">Replace Photo</button>
-        </div>
-    </div>
-
-    <footer>
-        <div class="footer-info">For More Information About Fluxaa</div>
-        <a href="https://fluxaaofficial.vercel.app" target="_blank" class="footer-link-btn">Click Here 🚀</a>
-        <div class="footer-copyright">
-            © 2026 <strong>Fluxaa Technologies</strong>. All rights reserved.
-        </div>
-    </footer>
-
-    <canvas id="hidden-engine-canvas" style="display: none;"></canvas>
+    <!-- Cropper.js Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
     <script>
-        // DOM Handles
-        const pickerInput = document.getElementById('photo-picker');
-        const selectBtn = document.getElementById('select-btn');
-        const userPhotoView = document.getElementById('user-photo-view');
-        const fhdConvertBtn = document.getElementById('fhd-convert-btn');
-        const finalFhdView = document.getElementById('final-fhd-view');
-        const downloadFinalBtn = document.getElementById('download-final-btn');
-        const replaceBtn = document.getElementById('replace-btn');
-        
-        const canvas = document.getElementById('hidden-engine-canvas');
-        const ctx = canvas.getContext('2d');
-        
-        let targetRawData = null;
-        let finalProductOutput = null;
+        // Global variables for handling data
+        let cropperInstance = null;
+        let originalFile = null;
+        let finalBlobData = null;
+        let compressedDataUrl = null;
 
-        // 1. AUTO SPLASH SCREEN CONTROLLER
+        // 3 Second Splash Screen Logic
         window.addEventListener('DOMContentLoaded', () => {
-            // Push initial home state history token to intercept back key
-            history.pushState({ screen: 'home-screen' }, '');
-            
             setTimeout(() => {
                 const splash = document.getElementById('splash-screen');
-                splash.style.opacity = '0';
-                setTimeout(() => splash.style.display = 'none', 500);
-            }, 3000); 
+                splash.style.opacity = 0;
+                setTimeout(() => {
+                    splash.classList.add('hidden');
+                    navigateTo('home-page');
+                }, 500);
+            }, 3000);
         });
 
-        // 2. HARD-WIRED SINGLE PAGE BACK BUTTON ROUTING INTERCEPTOR
-        window.addEventListener('popstate', function(event) {
-            if (event.state && event.state.screen) {
-                // System dynamic fallback tracking state trigger
-                executeNavigationLogic(event.state.screen, false);
-            } else {
-                // Default fallback tracking router anchor protection
-                executeNavigationLogic('home-screen', false);
-                history.pushState({ screen: 'home-screen' }, '');
-            }
-        });
-
-        function navigateTo(screenId) {
-            // Push layout stack trace parameters on native router configuration array
-            history.pushState({ screen: screenId }, '');
-            executeNavigationLogic(screenId, true);
-        }
-
-        function executeNavigationLogic(screenId, shouldScroll) {
-            document.querySelectorAll('.app-screen').forEach(screen => {
-                screen.classList.remove('active-screen');
+        // Navigation Engine
+        function navigateTo(pageId) {
+            const pages = ['home-page', 'work-page', 'wait-page', 'result-page'];
+            pages.forEach(id => {
+                document.getElementById(id).classList.add('hidden');
             });
-            document.getElementById(screenId).classList.add('active-screen');
-            if(shouldScroll) window.scrollTo(0, 0);
+            document.getElementById(pageId).classList.remove('hidden');
+
+            // Reset handling if going back to work page
+            if(pageId === 'work-page' && cropperInstance) {
+                cropperInstance.destroy();
+                document.getElementById('crop-wrapper').classList.add('hidden');
+                document.getElementById('upload-status').innerText = "Click to upload or drop photo here";
+            }
         }
 
-        // TRIGGER NATIVE FILE PICKER
-        selectBtn.addEventListener('click', () => pickerInput.click());
-
-        // HANDLING IMAGE SELECTION
-        pickerInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
+        // Handle Image Upload Selection
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
             if (!file) return;
+            originalFile = file;
+
+            document.getElementById('upload-status').innerText = `Selected: ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
 
             const reader = new FileReader();
-            reader.onload = function(event) {
-                targetRawData = event.target.result;
-                userPhotoView.src = targetRawData;
-                userPhotoView.style.display = 'block';
-                fhdConvertBtn.style.display = 'block';
-                selectBtn.innerText = "Change Selection";
+            reader.onload = function(e) {
+                const cropImage = document.getElementById('crop-image');
+                cropImage.src = e.target.result;
+                
+                document.getElementById('crop-wrapper').classList.remove('hidden');
+                
+                if(cropperInstance) cropperInstance.destroy();
+                
+                // Initialize Crop Feature
+                cropperInstance = new Cropper(cropImage, {
+                    viewMode: 1,
+                    autoCropArea: 1,
+                    responsive: true,
+                });
             };
             reader.readAsDataURL(file);
-        });
-
-        // CONVERT TO FHD PROCESS ROUTE (WITH LOGIC EMULATION)
-        fhdConvertBtn.addEventListener('click', () => {
-            if(!targetRawData) return;
-            
-            navigateTo('processing-screen');
-
-            const img = new Image();
-            img.onload = function() {
-                const hdMultiplier = 3;
-                canvas.width = img.width * hdMultiplier;
-                canvas.height = img.height * hdMultiplier;
-                
-                ctx.imageSmoothingEnabled = true;
-                ctx.imageSmoothingQuality = 'high';
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                
-                ctx.filter = "contrast(1.12) saturate(1.04) brightness(1.01)";
-                ctx.drawImage(canvas, 0, 0);
-                ctx.filter = "none";
-                
-                // Direct Base64 asset configuration binding profile arrays
-                finalProductOutput = canvas.toDataURL('image/jpeg', 1.0);
-
-                setTimeout(() => {
-                    finalFhdView.src = finalProductOutput;
-                    navigateTo('result-screen');
-                }, 4500); 
-            };
-            img.src = targetRawData;
-        });
-
-        // 3. WORKABLE NATIVE DOWNLOADING ARCHITECTURE CORE
-downloadFinalBtn.addEventListener('click', () => {
-    if (!finalProductOutput) return;
-    
-    try {
-        // 1. Base64 data ko binary bytes mein convert karna
-        const byteString = atob(finalProductOutput.split(',')[1]);
-        const mimeString = finalProductOutput.split(',')[0].split(':')[1].split(';')[0];
-        const ab = new ArrayBuffer(byteString.length);
-        const ia = new Uint8Array(ab);
-        
-        for (let i = 0; i < byteString.length; i++) {
-            ia[i] = byteString.charCodeAt(i);
         }
-        
-        // 2. Real File (Blob) create karna
-        const blob = new Blob([ab], { type: mimeString });
-        const blobUrl = URL.createObjectURL(blob);
-        
-        // 3. Native Hidden Anchor method
-        const nativeDownloadAnchor = document.createElement('a');
-        nativeDownloadAnchor.download = `fluxaa-fhd-${Date.now()}.jpg`;
-        nativeDownloadAnchor.href = blobUrl;
-        
-        document.body.appendChild(nativeDownloadAnchor);
-        nativeDownloadAnchor.click();
-        
-        // Safety Clean up
-        setTimeout(() => {
-            document.body.removeChild(nativeDownloadAnchor);
-            URL.revokeObjectURL(blobUrl);
-        }, 100);
 
-    } catch (error) {
-        // 4. FALLBACK: Agar mobile security download fail kare, toh safe side photo open kar do
-        console.log("Mobile redirect fallback active");
-        const newTab = window.open();
-        if (newTab) {
-            newTab.document.write(`<h3 style="color:#00d2ff; text-align:center; font-family:sans-serif; margin-top:20px;">Fluxaa HD Studio</h3><p style="color:#666; text-align:center; font-family:sans-serif;">Photo par Long Press (daba kar) rakhein aur "Save Image" select karein.</p><img src="${finalProductOutput}" style="max-width:100%; height:auto; display:block; margin:20px auto; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.3);"/>`);
-        } else {
-            // Agar pop-up bhi block ho jaye, toh direct window replace
-            window.location.href = finalProductOutput;
+        // Optional Aspect Ratio trigger
+        function applyCrop() {
+            if(cropperInstance) {
+                cropperInstance.setAspectRatio(1); // 1:1 Square block crop layout example
+            }
         }
-    }
-});
 
-        // REPLACE BUTTON ACTION ROUTE
-        replaceBtn.addEventListener('click', () => {
-            targetRawData = null;
-            finalProductOutput = null;
-            userPhotoView.src = "";
-            userPhotoView.style.display = 'none';
-            fhdConvertBtn.style.display = 'none';
-            selectBtn.innerText = "Select Photo";
-            pickerInput.value = "";
+        // 5 Second Countdown & Core Processing Machine
+        function startProcessing() {
+            if (!originalFile) {
+                alert("Please select an image first!");
+                return;
+            }
+
+            navigateTo('wait-page');
+            let timeLeft = 5;
+            const timerElement = document.getElementById('countdown');
+            timerElement.innerText = timeLeft;
+
+            const countdownInterval = setInterval(() => {
+                timeLeft--;
+                timerElement.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    executeCompression(); // Core compression process after wait
+                }
+            }, 1000);
+        }
+
+        // Logic core calculation for custom KB/MB sizes
+        function executeCompression() {
+            let canvas;
+            if (cropperInstance) {
+                canvas = cropperInstance.getCroppedCanvas();
+            } else {
+                alert("Processing failed. Please re-upload.");
+                navigateTo('work-page');
+                return;
+            }
+
+            const targetSizeInput = parseFloat(document.getElementById('target-size').value);
+            const unit = document.getElementById('size-unit').value;
+            // Converting targeted value to pure bytes
+            let targetSizeBytes = unit === 'mb' ? targetSizeInput * 1024 * 1024 : targetSizeInput * 1024;
+
+            let quality = 0.9;
+            let dataUrl = canvas.toDataURL('image/jpeg', quality);
             
-            navigateTo('workspace-screen');
-        });
+            // Binary search logic approximation block loop to find required KB size matches
+            for (let i = 0; i < 10; i++) {
+                const base64Length = dataUrl.length - (dataUrl.indexOf(',') + 1);
+                const currentSizeBytes = base64Length * 0.75; // Approx byte size calculation
+
+                if (currentSizeBytes <= targetSizeBytes || quality <= 0.1) {
+                    break;
+                }
+                quality -= 0.1;
+                dataUrl = canvas.toDataURL('image/jpeg', quality);
+            }
+
+            compressedDataUrl = dataUrl;
+            
+            // Format to show detailed specs on result screen
+            const compressedBase64Length = dataUrl.length - (dataUrl.indexOf(',') + 1);
+            const finalSizeKB = (compressedBase64Length * 0.75) / 1024;
+
+            document.getElementById('size-info').innerText = `Original: ${(originalFile.size/1024).toFixed(1)} KB | Compressed Target: ~${finalSizeKB.toFixed(1)} KB`;
+            document.getElementById('result-preview').src = dataUrl;
+
+            navigateTo('result-page');
+        }
+
+        // Download Action Trigger for pure Image File
+        function downloadImage() {
+            if (!compressedDataUrl) return;
+            const link = document.createElement('a');
+            link.download = `fluxaa-compressed-${Date.now()}.jpg`;
+            link.href = compressedDataUrl;
+            link.click();
+        }
+
+        // Advanced PDF export logic
+        function downloadPDF() {
+            if (!compressedDataUrl) return;
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF();
+            
+            // Clean standard sizing configuration matching page flow parameters
+            pdf.addImage(compressedDataUrl, 'JPEG', 10, 10, 190, 0);
+            pdf.save(`fluxaa-document-${Date.now()}.pdf`);
+        }
     </script>
 </body>
 </html>
