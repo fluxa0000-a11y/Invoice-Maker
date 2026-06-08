@@ -259,4 +259,258 @@
         <button id="mb-tab-game" onclick="switchTab('game')" class="flex flex-col items-center justify-center text-cyan-400 transition-all cursor-pointer">
             <span class="text-base">🎮</span><span class="text-[9px] font-bold mt-0.5">Play</span>
         </button>
-        <button id="mb-tab-dash" onclick="switchTab('dashboard')" class="flex flex-col items-cent
+        <button id="mb-tab-dash" onclick="switchTab('dashboard')" class="flex flex-col items-center justify-center text-neutral-500 transition-all cursor-pointer">
+            <span class="text-base">🎁</span><span class="text-[9px] font-bold mt-0.5">Dashboard</span>
+        </button>
+        <button id="mb-tab-admin" onclick="switchTab('admin')" class="flex flex-col items-center justify-center text-neutral-500 transition-all cursor-pointer">
+            <span class="text-base">🛡️</span><span class="text-[9px] font-bold mt-0.5">Admin</span>
+        </button>
+    </div>
+
+    <footer class="p-4 border-t border-neutral-900 bg-neutral-950 text-center text-[9px] text-neutral-600 flex flex-col gap-1">
+        <div>Powered by Fluxaa Technologies — A Company Of Gen Z's</div>
+        <div class="max-w-2xl mx-auto opacity-50">Disclaimer: 100% free virtual coin simulation game for entertainment purposes only. No real money or gambling involved.</div>
+    </footer>
+
+    <script>
+        let balance = localStorage.getItem('fluxaa_coins') ? parseInt(localStorage.getItem('fluxaa_coins')) : 1000;
+        let totalRounds = localStorage.getItem('fluxaa_rounds') ? parseInt(localStorage.getItem('fluxaa_rounds')) : 0;
+        let currentBet = 0, multiplier = 1.00, gameInterval = null, crashPoint = 0, isGameRunning = false;
+
+        document.getElementById('coin-balance').textContent = balance;
+        document.getElementById('lb-current-coins').textContent = balance.toLocaleString();
+        document.getElementById('rounds-played').textContent = totalRounds;
+
+        let liveAdminClaimsNode = [];
+        const SECURE_MASTER_KEY = "Goyal0@Varun";
+
+        function verifyAdminPassword() {
+            const enteredPass = document.getElementById('admin-pass-input').value;
+            if(enteredPass === SECURE_MASTER_KEY) {
+                document.getElementById('admin-auth-box').classList.add('hidden');
+                document.getElementById('admin-content').classList.remove('hidden');
+                renderAdminTable();
+            } else {
+                alert("Incorrect Admin Master Password Access Key!");
+            }
+        }
+
+        function addTestingCoins() {
+            balance += 90000;
+            localStorage.setItem('fluxaa_coins', balance);
+            document.getElementById('coin-balance').textContent = balance;
+            document.getElementById('lb-current-coins').textContent = balance.toLocaleString();
+            alert("✨ Admin Power! +90,000 Coins successfully credited to your game account.");
+        }
+
+        function renderAdminTable() {
+            const tbody = document.getElementById('admin-claims-tbody');
+            tbody.innerHTML = '';
+            if(liveAdminClaimsNode.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-4 text-center text-neutral-600 italic">No incoming requests in live pipeline...</td></tr>`;
+                return;
+            }
+            liveAdminClaimsNode.forEach((claim, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-neutral-900/60 hover:bg-neutral-900/20 text-xs";
+                const isCash = claim.type === 'cash';
+                tr.innerHTML = `
+                    <td class="py-3 px-2 font-bold ${isCash ? 'text-emerald-400' : 'text-cyan-400'}">${claim.item}</td>
+                    <td class="py-3 px-2 text-white">${claim.name}</td>
+                    <td class="py-3 px-2 text-neutral-400">${claim.phone}</td>
+                    <td class="py-3 px-2 text-amber-300 font-mono">${claim.val1}</td>
+                    <td class="py-3 px-2 text-neutral-500 max-w-xs truncate">${claim.val2}</td>
+                    <td class="py-3 px-2 text-right">
+                        <button onclick="dispatchGiftItem(${idx})" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] px-2.5 py-1 rounded cursor-pointer">
+                            ${isCash ? 'Sent Cash' : 'Send Gift'}
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function dispatchGiftItem(index) {
+            const item = liveAdminClaimsNode[index];
+            alert(`Order marked cleared! Transfer confirmed for ${item.name}.`);
+            liveAdminClaimsNode.splice(index, 1);
+            renderAdminTable();
+        }
+
+        function switchTab(tab) {
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('dashboard-screen').classList.add('hidden');
+            document.getElementById('admin-screen').classList.add('hidden');
+            
+            ['dk-tab-game','dk-tab-dash','dk-tab-admin'].forEach(id=>document.getElementById(id).className="px-4 py-1.5 rounded-lg text-xs font-bold text-neutral-400 hover:text-white cursor-pointer");
+            ['mb-tab-game','mb-tab-dash','mb-tab-admin'].forEach(id=>document.getElementById(id).className="flex flex-col items-center justify-center text-neutral-500 transition-all cursor-pointer");
+
+            if(tab === 'game') {
+                document.getElementById('game-screen').classList.remove('hidden');
+                document.getElementById('dk-tab-game').className = "px-4 py-1.5 rounded-lg text-xs font-bold bg-cyan-500 text-neutral-950 cursor-pointer";
+                document.getElementById('mb-tab-game').className = "flex flex-col items-center justify-center text-cyan-400 transition-all cursor-pointer";
+            } else if (tab === 'dashboard') {
+                document.getElementById('dashboard-screen').classList.remove('hidden');
+                document.getElementById('dk-tab-dash').className = "px-4 py-1.5 rounded-lg text-xs font-bold bg-cyan-500 text-neutral-950 cursor-pointer";
+                document.getElementById('mb-tab-dash').className = "flex flex-col items-center justify-center text-cyan-400 transition-all cursor-pointer";
+            } else if (tab === 'admin') {
+                document.getElementById('admin-screen').classList.remove('hidden');
+                document.getElementById('dk-tab-admin').className = "px-4 py-1.5 rounded-lg text-xs font-bold bg-red-600 text-white cursor-pointer";
+                document.getElementById('mb-tab-admin').className = "flex flex-col items-center justify-center text-red-500 transition-all cursor-pointer";
+            }
+        }
+
+        function claimGift(giftName, cost, type) {
+            if(balance < cost) {
+                alert(`Is reward ke liye ${cost} coins chahiye. Thoda aur khele!`);
+                return;
+            }
+            document.getElementById('selected-item-input').value = giftName;
+            document.getElementById('selected-cost-input').value = cost;
+            document.getElementById('selected-type-input').value = type;
+
+            const label1 = document.getElementById('dynamic-label-1');
+            const input1 = document.getElementById('ship-dynamic-1');
+            const block2 = document.getElementById('dynamic-input-block-2');
+            const input2 = document.getElementById('ship-dynamic-2');
+
+            if(type === 'cash') {
+                document.getElementById('modal-emoji').textContent = "💵";
+                document.getElementById('modal-title').textContent = "Claim Instant Cash";
+                document.getElementById('modal-desc').textContent = "Apna bilkul sahi UPI ID enter karo, cash direct transfer hoga.";
+                label1.textContent = "UPI ID (GPay / PhonePe / Paytm)";
+                input1.placeholder = "example@ybl";
+                block2.classList.add('hidden');
+                input2.required = false;
+                document.getElementById('modal-submit-btn').className = "w-full bg-emerald-500 text-neutral-950 font-black text-xs py-3 rounded-xl uppercase tracking-wider cursor-pointer";
+                document.getElementById('modal-submit-btn').textContent = "Confirm Cash Transfer Request";
+            } else {
+                document.getElementById('modal-emoji').textContent = "🎁";
+                document.getElementById('modal-title').textContent = "Claim Free Merch";
+                document.getElementById('modal-desc').textContent = "Apna full shipping address dalo, gift completely free deliver hoga.";
+                label1.textContent = "Pincode";
+                input1.placeholder = "Pincode";
+                block2.classList.remove('hidden');
+                input2.required = true;
+                document.getElementById('modal-submit-btn').className = "w-full bg-cyan-500 text-neutral-950 font-black text-xs py-3 rounded-xl uppercase tracking-wider cursor-pointer";
+                document.getElementById('modal-submit-btn').textContent = "Confirm Free Delivery";
+            }
+
+            document.getElementById('redeem-modal').classList.remove('hidden');
+        }
+
+        function closeRedeemModal() { document.getElementById('redeem-modal').classList.add('hidden'); }
+
+        document.getElementById('shipping-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const gift = document.getElementById('selected-item-input').value;
+            const cost = parseInt(document.getElementById('selected-cost-input').value);
+            const type = document.getElementById('selected-type-input').value;
+            
+            const val1 = document.getElementById('ship-dynamic-1').value;
+            const val2 = (type === 'cash') ? "UPI Cash Out Sync Mode" : document.getElementById('ship-dynamic-2').value;
+
+            const newClaim = {
+                item: gift,
+                name: document.getElementById('ship-name').value,
+                phone: document.getElementById('ship-phone').value,
+                val1: val1,
+                val2: val2,
+                type: type
+            };
+
+            balance -= cost;
+            localStorage.setItem('fluxaa_coins', balance);
+            document.getElementById('coin-balance').textContent = balance;
+            document.getElementById('lb-current-coins').textContent = balance.toLocaleString();
+
+            document.getElementById('user-display-name').textContent = newClaim.name;
+            document.getElementById('lb-current-username').textContent = `${newClaim.name} (You)`;
+            document.getElementById('user-avatar').textContent = newClaim.name.charAt(0).toUpperCase();
+
+            liveAdminClaimsNode.push(newClaim);
+            renderAdminTable();
+
+            alert(`Mubarak ho! Aapka ${gift} claim request processing node par send ho gaya hai.`);
+            document.getElementById('shipping-form').reset();
+            closeRedeemModal();
+        });
+
+        // Simplified Game Core Engine
+        const coinBalanceEl = document.getElementById('coin-balance');
+        const multiplierDisplayEl = document.getElementById('multiplier-display');
+        const statusMessageEl = document.getElementById('status-message');
+        const planeEl = document.getElementById('plane');
+        const betInputEl = document.getElementById('bet-input');
+        const betBtn = document.getElementById('bet-btn');
+        const cashoutBtn = document.getElementById('cashout-btn');
+        const historyBar = document.getElementById('history-bar');
+        const liveBetsContainer = document.getElementById('live-bets-container');
+        const fakeUsers = ['Rohan_G', 'Ananya_Nx', 'Kabir_Tech', 'Z_FluX', 'Sanya_99', 'Aryan_Dev'];
+
+        function generateLobbyBets() {
+            liveBetsContainer.innerHTML = '';
+            fakeUsers.forEach(user => {
+                const amount = Math.floor(Math.random() * 20) * 10 + 50;
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center bg-neutral-950/40 p-2 border border-neutral-900/40 rounded';
+                div.innerHTML = `<span>${user}</span><div class="flex gap-2"><span>🪙${amount}</span><span class="tag text-neutral-600">Betting...</span></div>`;
+                liveBetsContainer.appendChild(div);
+            });
+        }
+
+        betBtn.addEventListener('click', () => {
+            const amt = parseInt(betInputEl.value);
+            if(isNaN(amt) || amt > balance) { alert("Invalid coins or insufficient balance!"); return; }
+            balance -= amt; currentBet = amt;
+            localStorage.setItem('fluxaa_coins', balance);
+            coinBalanceEl.textContent = balance;
+            startGame();
+        });
+
+        cashoutBtn.addEventListener('click', () => {
+            if(!isGameRunning) return;
+            let win = Math.floor(currentBet * multiplier);
+            balance += win;
+            localStorage.setItem('fluxaa_coins', balance);
+            coinBalanceEl.textContent = balance;
+            statusMessageEl.textContent = `Won 🪙${win} at ${multiplier.toFixed(2)}x!`;
+            statusMessageEl.className = 'text-[10px] text-green-400 uppercase tracking-widest mt-1';
+            resetControls();
+        });
+
+        function startGame() {
+            isGameRunning = true; multiplier = 1.00; generateLobbyBets();
+            totalRounds++;
+            localStorage.setItem('fluxaa_rounds', totalRounds);
+            document.getElementById('rounds-played').textContent = totalRounds;
+            crashPoint = Math.random() < 0.12 ? 1.00 : (1 + Math.random() * 6).toFixed(2);
+            betBtn.classList.add('hidden'); cashoutBtn.classList.remove('hidden');
+            betInputEl.disabled = true; planeEl.classList.remove('hidden');
+            statusMessageEl.textContent = "Plane flying...";
+            
+            gameInterval = setInterval(() => {
+                multiplier += 0.02;
+                multiplierDisplayEl.textContent = `${multiplier.toFixed(2)}x`;
+                if(multiplier >= crashPoint) { clearInterval(gameInterval); handleCrash(); }
+            }, 80);
+        }
+
+        function handleCrash() {
+            isGameRunning = false;
+            multiplierDisplayEl.textContent = "FLEW AWAY!";
+            statusMessageEl.textContent = `Crashed at ${parseFloat(crashPoint).toFixed(2)}x`;
+            planeEl.classList.add('hidden');
+            const hSpan = document.createElement('span');
+            hSpan.className = "text-[11px] bg-neutral-900 border border-neutral-800 text-cyan-400 px-2 py-0.5 rounded font-bold font-mono shrink-0";
+            hSpan.textContent = `${parseFloat(crashPoint).toFixed(2)}x`;
+            historyBar.insertBefore(hSpan, historyBar.children[1]);
+            setTimeout(() => { multiplierDisplayEl.textContent = "1.00x"; statusMessageEl.textContent = "Waiting..."; resetControls(); }, 2500);
+        }
+
+        function resetControls() { if(gameInterval) clearInterval(gameInterval); isGameRunning = false; betBtn.classList.remove('hidden'); cashoutBtn.classList.add('hidden'); betInputEl.disabled = false; planeEl.classList.add('hidden'); }
+        document.getElementById('rewarded-ad-btn').addEventListener('click', () => { balance += 500; localStorage.setItem('fluxaa_coins', balance); coinBalanceEl.textContent = balance; document.getElementById('lb-current-coins').textContent = balance.toLocaleString(); alert("Bonus +500 Coins added via video ad module simulation!"); });
+        generateLobbyBets();
+    </script>
+</body>
+</html>
