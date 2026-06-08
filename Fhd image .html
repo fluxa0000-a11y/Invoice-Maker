@@ -305,65 +305,96 @@
                 }
             });
         }
+        // --- Updated Aviator Game Loop (Fix: User cashout ke baad bhi graph chalta rahega) ---
+let multiplier = 1.0, isFlying = false, gameInterval;
+let userHasCashedOut = false; // Yeh track karega ki user ne paise nikaal liye ya nahi
+let currentBetAmount = 0;
 
-        // --- Aviator Game Loop (30x-40x Cap) ---
-        let multiplier = 1.0, isFlying = false, gameInterval;
-        
-        function placeUserBet() {
-            let amt = parseInt(document.getElementById('bet-input').value);
-            if(amt > balance || amt <= 0) { alert("Insufficient coins!"); return; }
-            balance -= amt; updateUI();
-            isFlying = true; multiplier = 1.0;
-            generateFakeLobby();
+function placeUserBet() {
+    let amt = parseInt(document.getElementById('bet-input').value);
+    if(amt > balance || amt <= 0) { alert("Insufficient coins!"); return; }
+    
+    balance -= amt; 
+    currentBetAmount = amt; // Current bet save kar li
+    updateUI();
+    
+    isFlying = true; 
+    multiplier = 1.0;
+    userHasCashedOut = false; // Naye round mein false set kiya
 
-            document.getElementById('bet-btn').classList.add('hidden');
-            document.getElementById('cashout-btn').classList.remove('hidden');
-            document.getElementById('plane').classList.remove('hidden');
-            document.getElementById('status-message').textContent = "Plane is airborne...";
+    generateFakeLobby();
 
-            let rand = Math.random();
-            let crashPoint = rand < 0.45 ? (1 + Math.random() * 0.5).toFixed(2) : rand < 0.88 ? (1.5 + Math.random() * 6.5).toFixed(2) : (30 + Math.random() * 10).toFixed(2);
+    document.getElementById('bet-btn').classList.add('hidden');
+    document.getElementById('cashout-btn').classList.remove('hidden');
+    document.getElementById('plane').classList.remove('hidden');
+    document.getElementById('status-message').textContent = "Plane is airborne...";
 
-            gameInterval = setInterval(() => {
-                multiplier += 0.02;
-                let displayX = multiplier.toFixed(2);
-                document.getElementById('multiplier-display').textContent = displayX + "x";
-                updateBotsLive(parseFloat(displayX));
+    // 30x - 40x Controlled Crash Algorithm
+    let rand = Math.random();
+    let crashPoint = rand < 0.45 ? (1 + Math.random() * 0.5).toFixed(2) : rand < 0.88 ? (1.5 + Math.random() * 6.5).toFixed(2) : (30 + Math.random() * 10).toFixed(2);
 
-                if(multiplier >= crashPoint) {
-                    clearInterval(gameInterval);
-                    isFlying = false;
-                    document.getElementById('multiplier-display').textContent = "FLEW AWAY!";
-                    document.getElementById('plane').classList.add('hidden');
-                    document.getElementById('status-message').textContent = `Crashed at ${parseFloat(crashPoint).toFixed(2)}x`;
-                    
-                    const hSpan = document.createElement('span');
-                    hSpan.className = "text-[10px] bg-neutral-900 border border-neutral-800 text-cyan-400 px-1.5 py-0.5 rounded font-bold shrink-0";
-                    hSpan.textContent = `${parseFloat(crashPoint).toFixed(2)}x`;
-                    document.getElementById('history-bar').insertBefore(hSpan, document.getElementById('history-bar').children[1]);
+    gameInterval = setInterval(() => {
+        multiplier += 0.02;
+        let displayX = multiplier.toFixed(2);
+        document.getElementById('multiplier-display').textContent = displayX + "x";
+        updateBotsLive(parseFloat(displayX));
 
-                    setTimeout(() => { resetGame(); }, 2500);
-                }
-            }, 80);
-        }
-
-        function cashOutUser() {
-            if(!isFlying) return;
-            let win = Math.floor(parseInt(document.getElementById('bet-input').value) * multiplier);
-            balance += win; updateUI();
-            document.getElementById('status-message').textContent = `🎯 Cashed out at ${multiplier.toFixed(2)}x! +🪙${win}`;
+        // Jab plane crash point par pahuchega, tabhi loop rukega
+        if(multiplier >= crashPoint) {
             clearInterval(gameInterval);
-            setTimeout(() => { resetGame(); }, 2000);
-        }
-
-        function resetGame() {
             isFlying = false;
-            document.getElementById('multiplier-display').textContent = "1.00x";
-            document.getElementById('bet-btn').classList.remove('hidden');
-            document.getElementById('cashout-btn').classList.add('hidden');
+            document.getElementById('multiplier-display').textContent = "FLEW AWAY!";
             document.getElementById('plane').classList.add('hidden');
-            document.getElementById('status-message').textContent = "Waiting for next round...";
+            document.getElementById('status-message').textContent = `Crashed at ${parseFloat(crashPoint).toFixed(2)}x`;
+            
+            // Agar user ne pure round mein cashout nahi kiya tha, toh cashout button ab hide hoga
+            document.getElementById('cashout-btn').classList.add('hidden');
+
+            const hSpan = document.createElement('span');
+            hSpan.className = "text-[10px] bg-neutral-900 border border-neutral-800 text-cyan-400 px-1.5 py-0.5 rounded font-bold shrink-0";
+            hSpan.textContent = `${parseFloat(crashPoint).toFixed(2)}x`;
+            document.getElementById('history-bar').insertBefore(hSpan, document.getElementById('history-bar').children[1]);
+
+            setTimeout(() => { resetGame(); }, 2500);
         }
+    }, 80);
+}
+
+function cashOutUser() {
+    if(!isFlying || userHasCashedOut) return; // Agar plane ud nahi raha ya user pehle hi nikal chuka hai
+
+    userHasCashedOut = true; // State true kar di taaki baar-baar click na ho
+    let win = Math.floor(currentBetAmount * multiplier);
+    balance += win; 
+    updateUI();
+
+    document.getElementById('status-message').textContent = `🎯 You cashed out at ${multiplier.toFixed(2)}x! +🪙${win}`;
+    
+    // 🔥 Sabse Zaroori: Cashout button ko turant chhupa do aur bet button ko disabled jaisa dikhao
+    document.getElementById('cashout-btn').classList.add('hidden');
+    document.getElementById('bet-btn').classList.remove('hidden');
+    document.getElementById('bet-btn').setAttribute('disabled', 'true');
+    document.getElementById('bet-btn').style.opacity = "0.5";
+    document.getElementById('bet-btn').textContent = "Waiting for crash...";
+}
+
+function resetGame() {
+    isFlying = false;
+    userHasCashedOut = false;
+    document.getElementById('multiplier-display').textContent = "1.00x";
+    
+    // Bet button ko wapas normal kar do
+    document.getElementById('bet-btn').classList.remove('hidden');
+    document.getElementById('bet-btn').removeAttribute('disabled');
+    document.getElementById('bet-btn').style.opacity = "1";
+    document.getElementById('bet-btn').textContent = "Place Bet";
+    
+    document.getElementById('cashout-btn').classList.add('hidden');
+    document.getElementById('plane').classList.add('hidden');
+    document.getElementById('status-message').textContent = "Waiting for next round...";
+}
+
+        
 
         updateUI();
         generateFakeLobby();
